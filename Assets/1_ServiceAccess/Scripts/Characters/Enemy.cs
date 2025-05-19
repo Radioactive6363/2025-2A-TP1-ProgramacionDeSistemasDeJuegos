@@ -20,6 +20,8 @@ namespace Excercise1
         {
             base.OnEnable();
             //TODO: Get the reference to the player.
+            //DONE.
+            _player = CharacterService.Instance.GetCharacterService(playerId);
             if (_player == null)
                 Debug.LogError($"{_logTag} Player not found!");
         }

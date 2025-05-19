@@ -9,12 +9,16 @@ namespace Excercise1
 
         protected virtual void OnEnable()
         {
-            //TODO: Add to CharacterService. The id should be the given serialized field. 
+            //TODO: Add to CharacterService. The id should be the given serialized field
+            //DONE.
+            CharacterService.Instance.TryAddCharacter(id, this);
         }
 
         protected virtual void OnDisable()
         {
             //TODO: Remove from CharacterService.
+            //DONE.
+            CharacterService.Instance.TryRemoveCharacter(id);
         }
     }
 }
