@@ -10,24 +10,23 @@ namespace Gameplay
         [SerializeField] private InputActionReference jumpInput;
         [SerializeField] private float airborneSpeedMultiplier = .5f;
         /*NOTE
-            Se intentó realizar un State Machine con manejo de "CurrentState" con
-            clases "State" que contengan los metodos OnStartState, OnHandleState, OnEndState, pero debido
-            a la dependencia de "InputAction.CallbackContext" se hizo imposible, por lo que se optó por
-            hacerlo con un State Machine que se encarga de manejar el estado de "Grounded", "FirstJump",
-            "SecondJump", el cual se puede expandir fácilmente en caso de que se requiera agregar de otros 
-            estados aparte.
-            Lo consideraria Strategy Pattern, pero debido a que se requiere de un "Contexto", en este caso Player
-            Controller, no se lo podria considerar Strategy Pattern. 
+            A State Machine is created with "CurrentState" handling using the SetState and TryHandleInput methods.
+            The "State" classes contain the OnEnterState, OnHandle, and OnEndState methods to control their states.
+            I would consider this a Strategy Pattern, but because a "Context" is required within the States,
+            In this case, Character and StateMachine, it cannot be considered a Strategy Pattern.
+            Some States do not have OnEnterState, OnHandle or OnEndState implemented, but they are still part of the 
+            State Machine and can be used in the future to implement other features (animations, sounds, etc.).
+            The State Machine CAN be used for every class that implements the "Character" class component.
         */
         private Character _character;
-        private StateMachine _stateMachine;
-
+        [SerializeField] private StateMachine _stateMachine;
+        //Creation of NewStateMachine for the Character.
         private void Awake()
         {
             _character = GetComponent<Character>();
             _stateMachine = new StateMachine(_character);
         }
-
+        //On Enable, set inputs
         private void OnEnable()
         {
             if (moveInput?.action != null)
@@ -39,6 +38,7 @@ namespace Gameplay
             if (jumpInput?.action != null)
                 jumpInput.action.performed += HandleJumpInput;
         }
+        //On Disable, remove inputs
         private void OnDisable()
         {
             if (moveInput?.action != null)
@@ -49,7 +49,7 @@ namespace Gameplay
             if (jumpInput?.action != null)
                 jumpInput.action.performed -= HandleJumpInput;
         }
-
+        //Use the state machine bool to control if the player is airborne or not via states.
         private void HandleMoveInput(InputAction.CallbackContext ctx)
         {
             var direction = ctx.ReadValue<Vector2>().ToHorizontalPlane();
@@ -57,19 +57,19 @@ namespace Gameplay
                 direction *= airborneSpeedMultiplier;
             _character?.SetDirection(direction);
         }
-
+        //On handle Input, try to execute handle inside the states.
         private void HandleJumpInput(InputAction.CallbackContext ctx)
         {
-            _stateMachine.TryJump();
+            _stateMachine.TryHandleInput();
         }
-
+        //On Collision near ground, change state to ground.
         private void OnCollisionEnter(Collision other)
         {
             foreach (var contact in other.contacts)
             {
                 if (Vector3.Angle(contact.normal, Vector3.up) < 5)
                 {
-                    _stateMachine.ResetJumpState();
+                    _stateMachine.SetState(new GroundedState(_character, _stateMachine));
                 }
             }
         }

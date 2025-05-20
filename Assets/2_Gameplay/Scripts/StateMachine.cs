@@ -4,41 +4,26 @@ namespace Gameplay
 {
     public class StateMachine
     {
-        //Requires Character owner to work. So its available to all classes
-        //that implements Character.
-        private Character _character;
         private State _currentState;
-        private Coroutine _currentJumpCoroutine;
-        //Lambda expression for Bool.
-        public bool IsAirborne => _currentState != State.Grounded;
-        //Constructor
+        //Lamda Expression to check currentState of Character.
+        public bool IsAirborne => _currentState is not GroundedState;
+        //State Machine Constructor.
         public StateMachine(Character character)
         {
-            _character = character;
-            _currentState = State.Grounded;
+            SetState(new GroundedState(character, this));
         }
-        //Jumping Logic
-        public void TryJump()
+        //Method for changing states, via exiting states and entering new states.
+        public void SetState(State newState)
         {
-            if (_currentState == State.SecondJump)
-            {
-                return;
-            }
-            //Lambda Expression to get JumpState.
-            _currentState = _currentState == State.Grounded 
-                ? State.FirstJump 
-                : State.SecondJump;
-
-            if (_currentJumpCoroutine != null)
-            {
-                _character.StopCoroutine(_currentJumpCoroutine);
-            }
-            _currentJumpCoroutine = _character.StartCoroutine(_character.Jump());
+            _currentState?.OnExitState();
+            _currentState = newState;
+            Debug.Log(_currentState); //Debugging purposes.
+            _currentState.OnEnterState();
         }
-        //Resets state when is on the ground.
-        public void ResetJumpState()
+        //Handler for States in case of execution. In this case, via input in PlayerController.
+        public void TryHandleInput()
         {
-            _currentState = State.Grounded;
+            _currentState?.OnHandle();
         }
     }
 }
