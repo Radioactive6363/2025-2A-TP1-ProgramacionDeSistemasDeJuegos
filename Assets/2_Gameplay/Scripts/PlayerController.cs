@@ -9,14 +9,24 @@ namespace Gameplay
         [SerializeField] private InputActionReference moveInput;
         [SerializeField] private InputActionReference jumpInput;
         [SerializeField] private float airborneSpeedMultiplier = .5f;
-        //TODO: This booleans are not flexible enough. If we want to have a third jump or other things, it will become a hazzle.
-        private bool _isJumping;
-        private bool _isDoubleJumping;
+        /*NOTE
+            Se intentó realizar un State Machine con manejo de "CurrentState" con
+            clases "State" que contengan los metodos OnStartState, OnHandleState, OnEndState, pero debido
+            a la dependencia de "InputAction.CallbackContext" se hizo imposible, por lo que se optó por
+            hacerlo con un State Machine que se encarga de manejar el estado de "Grounded", "FirstJump",
+            "SecondJump", el cual se puede expandir fácilmente en caso de que se requiera agregar de otros 
+            estados aparte.
+            Lo consideraria Strategy Pattern, pero debido a que se requiere de un "Contexto", en este caso Player
+            Controller, no se lo podria considerar Strategy Pattern. 
+        */
         private Character _character;
-        private Coroutine _jumpCoroutine;
+        private StateMachine _stateMachine;
 
         private void Awake()
-            => _character = GetComponent<Character>();
+        {
+            _character = GetComponent<Character>();
+            _stateMachine = new StateMachine(_character);
+        }
 
         private void OnEnable()
         {
@@ -43,31 +53,14 @@ namespace Gameplay
         private void HandleMoveInput(InputAction.CallbackContext ctx)
         {
             var direction = ctx.ReadValue<Vector2>().ToHorizontalPlane();
-            if (_isJumping || _isDoubleJumping)
+            if (_stateMachine.IsAirborne)
                 direction *= airborneSpeedMultiplier;
             _character?.SetDirection(direction);
         }
 
         private void HandleJumpInput(InputAction.CallbackContext ctx)
         {
-            //TODO: This function is barely readable. We need to refactor how we control the jumping
-            if (_isJumping)
-            {
-                if (_isDoubleJumping)
-                    return;
-                RunJumpCoroutine();
-                _isDoubleJumping = true;
-                return;
-            }
-            RunJumpCoroutine();
-            _isJumping = true;
-        }
-
-        private void RunJumpCoroutine()
-        {
-            if (_jumpCoroutine != null)
-                StopCoroutine(_jumpCoroutine);
-            _jumpCoroutine = StartCoroutine(_character.Jump());
+            _stateMachine.TryJump();
         }
 
         private void OnCollisionEnter(Collision other)
@@ -76,8 +69,7 @@ namespace Gameplay
             {
                 if (Vector3.Angle(contact.normal, Vector3.up) < 5)
                 {
-                    _isJumping = false;
-                    _isDoubleJumping = false;
+                    _stateMachine.ResetJumpState();
                 }
             }
         }
