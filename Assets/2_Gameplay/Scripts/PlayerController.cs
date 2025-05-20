@@ -57,7 +57,7 @@ namespace Gameplay
                 direction *= airborneSpeedMultiplier;
             _character?.SetDirection(direction);
         }
-        //On handle Input, try to execute handle inside the states.
+        //On handle Input, try to execute the handle inside the states.
         private void HandleJumpInput(InputAction.CallbackContext ctx)
         {
             _stateMachine.TryHandleInput();

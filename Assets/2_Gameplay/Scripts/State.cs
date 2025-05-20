@@ -5,12 +5,12 @@ namespace Gameplay
     public abstract class State
     {
         //"Context" needed for correct handling and execution of States.
-        protected readonly Character _character;
-        protected readonly StateMachine _stateMachine;
+        protected  Character Character;
+        protected  StateMachine StateMachine;
         protected State(Character character, StateMachine stateMachine)
         {
-            _character = character;
-            _stateMachine = stateMachine;
+            Character = character;
+            this.StateMachine = stateMachine;
         }
         //Methods for States.
         public virtual void OnEnterState() { }

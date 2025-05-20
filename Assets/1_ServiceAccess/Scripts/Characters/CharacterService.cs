@@ -14,6 +14,7 @@ namespace Excercise1
          but since I don't know if that's what we want to continue using it as an instance from scene to scene, 
          I'll maintain the convention.
          */
+        private readonly Dictionary<string, ICharacter> _charactersById = new();
         public static CharacterService Instance { get; private set; }
         private void Awake()
         {
@@ -24,7 +25,6 @@ namespace Excercise1
             }
             Instance = this;
         }
-        private readonly Dictionary<string, ICharacter> _charactersById = new();
         public bool TryAddCharacter(string id, ICharacter character)
             => _charactersById.TryAdd(id, character);
         public bool TryRemoveCharacter(string id)

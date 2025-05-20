@@ -6,7 +6,7 @@
             : base(character, stateMachine) { }
         public override void OnEnterState()
         {
-            _character.StartCoroutine(_character.Jump());
+            Character.StartCoroutine(Character.Jump());
         }
         public override void OnHandle()
         {

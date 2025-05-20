@@ -7,12 +7,12 @@
 
         public override void OnEnterState()
         {
-            _character.StartCoroutine(_character.Jump());
+            Character.StartCoroutine(Character.Jump());
         }
 
         public override void OnHandle()
         {
-            _stateMachine.SetState(new SecondJumpState(_character, _stateMachine));
+            StateMachine.SetState(new SecondJumpState(Character, StateMachine));
         }
         
         public override void OnExitState()

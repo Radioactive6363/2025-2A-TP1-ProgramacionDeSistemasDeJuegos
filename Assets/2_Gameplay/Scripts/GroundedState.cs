@@ -14,7 +14,7 @@ namespace Gameplay
 
         public override void OnHandle()
         {
-            _stateMachine.SetState(new FirstJumpState(_character, _stateMachine));
+            StateMachine.SetState(new FirstJumpState(Character, StateMachine));
         }
         
         public override void OnExitState()
