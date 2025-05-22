@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Gameplay
@@ -5,20 +6,34 @@ namespace Gameplay
     public class StateMachine
     {
         private State _currentState;
-        //Lamda Expression to check currentState of Character.
-        public bool IsAirborne => _currentState is not GroundedState;
-        //State Machine Constructor.
-        public StateMachine(Character character)
+        //Dictionary for Transitions between States.
+        private readonly Dictionary<(State,string), State> _stateTransitions = new();
+        //State Machine Constructor + Initializer.
+        public StateMachine(State initialState)
         {
-            SetState(new GroundedState(character, this));
+            ChangeState(initialState);
         }
-        //Method for changing states, via exiting states and entering new states.
-        public void SetState(State newState)
+        public void ChangeState(State state)
         {
-            _currentState?.OnExitState();
-            _currentState = newState;
+            _currentState = state;
+            _currentState?.OnEnterState();
+        }
+        //Addition of Transitions via an Initial State and a string "TagTransition", returning the state to transition.
+        public void AddTransition(State fromState, string tagTransition, State nextState)
+        {
+            _stateTransitions.Add((fromState, tagTransition), nextState);
+        }
+        //Method for transitioning states, via exiting states and entering new states using a transitionTag.
+        public void TryTransition(string transitionTag)
+        {
+            var previousState = _currentState;
+            if (_stateTransitions.TryGetValue((_currentState, transitionTag), out var nextState) && nextState != previousState)
+            {
+                previousState?.OnExitState();
+                _currentState = nextState;
+                _currentState?.OnEnterState();
+            }
             Debug.Log(_currentState); //Debugging purposes.
-            _currentState.OnEnterState();
         }
         //Handler for States in case of execution. In this case, via input in PlayerController.
         public void TryHandleInput()

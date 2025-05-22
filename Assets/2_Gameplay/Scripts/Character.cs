@@ -11,7 +11,7 @@ namespace Gameplay
         [SerializeField] private float jumpForce = 10;
         private Vector3 _direction = Vector3.zero;
         private Rigidbody _rigidbody;
-
+        
         private void Awake()
             => _rigidbody = GetComponent<Rigidbody>();
 
