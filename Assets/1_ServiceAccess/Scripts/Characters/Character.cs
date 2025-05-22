@@ -9,12 +9,12 @@ namespace Excercise1
 
         protected virtual void OnEnable()
         {
-            CharacterService.Instance.TryAddCharacter(id, this);
+            CharacterService.Instance?.TryAddCharacter(id, this);
         }
 
         protected virtual void OnDisable()
         {
-            CharacterService.Instance.TryRemoveCharacter(id);
+            CharacterService.Instance?.TryRemoveCharacter(id);
         }
     }
 }
